@@ -1,0 +1,14 @@
+﻿#pragma once
+
+#include <windows.h>
+#include <cassert>
+#include <string>
+#include <memory>
+#include <algorithm>
+#include <vector>
+#include <array>
+#include <unordered_map>
+#include <cstdint>
+#include <fstream>
+#include <sstream>
+#include "CRTDebugDefines.h"
