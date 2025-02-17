@@ -134,7 +134,8 @@
     <ClCompile Include="Core\GameTimer.cpp" />
     <ClCompile Include="Core\MathHelper.cpp" />
     <ClCompile Include="Core\WinApp.cpp" />
-    <ClCompile Include="InitDirect3DApp.cpp" />
+    <ClCompile Include="TestApp\BoxApp.cpp" />
+    <ClCompile Include="TestApp\InitDirect3DApp.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Core\CommonUtil.h" />
@@ -145,7 +146,9 @@
     <ClInclude Include="Core\DDSTextureLoader.h" />
     <ClInclude Include="Core\GameTimer.h" />
     <ClInclude Include="Core\MathHelper.h" />
+    <ClInclude Include="Core\UploadBuffer.h" />
     <ClInclude Include="Core\WinApp.h" />
+    <ClInclude Include="TestApp\TestApp.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,9 +1,10 @@
 
 #include "Core/D3DApp.h"
+#include "TestApp/TestApp.h"
 
 //using ValidateApp = WinApp;
-
-using ValidateApp = InitDirect3DApp;
+//using ValidateApp = InitDirect3DApp;
+using ValidateApp = BoxApp;
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 	PSTR cmdLine, int showCmd)
@@ -12,7 +13,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 
 	try
 	{
-		InitDirect3DApp theApp(hInstance);
+		ValidateApp theApp(hInstance);
 		if (!theApp.Initialize())
 			return 0;
 

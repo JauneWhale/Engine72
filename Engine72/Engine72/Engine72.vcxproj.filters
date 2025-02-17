@@ -19,11 +19,14 @@
     <Filter Include="头文件\Core">
       <UniqueIdentifier>{39738c6d-3330-4479-865e-f77f96412fcb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="源文件\TestApp">
+      <UniqueIdentifier>{6003b09d-7821-4f2f-b64b-2b07e3b2ce83}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\TestApp">
+      <UniqueIdentifier>{a0423ebd-a12c-47f0-b1d6-bd4c45d23604}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="InitDirect3DApp.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="AppMain.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -44,6 +47,12 @@
     </ClCompile>
     <ClCompile Include="Core\D3DUtil.cpp">
       <Filter>源文件\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="TestApp\InitDirect3DApp.cpp">
+      <Filter>源文件\TestApp</Filter>
+    </ClCompile>
+    <ClCompile Include="TestApp\BoxApp.cpp">
+      <Filter>源文件\TestApp</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -72,6 +81,12 @@
       <Filter>头文件\Core</Filter>
     </ClInclude>
     <ClInclude Include="Core\CommonUtil.h">
+      <Filter>头文件\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="TestApp\TestApp.h">
+      <Filter>头文件\TestApp</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\UploadBuffer.h">
       <Filter>头文件\Core</Filter>
     </ClInclude>
   </ItemGroup>

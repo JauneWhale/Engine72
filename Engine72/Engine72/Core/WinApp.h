@@ -2,6 +2,7 @@
 
 #include "CommonUtil.h"
 #include "GameTimer.h"
+#include "WindowsInput.h"
 
 class WinApp
 {
@@ -16,6 +17,7 @@ public:
 public:
     static WinApp* GetApp();
 
+    void SetWindowsInputModule(WindowsInput* winInput) { mWinInput = winInput; }
     HINSTANCE AppInst()const;
     HWND      MainWnd()const;
     LRESULT MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -26,11 +28,6 @@ public:
 protected:
     virtual void Paint(const GameTimer& gt) {};
     virtual void OnResize() {};
-
-    // Convenience overrides for handling mouse input.
-    virtual void OnMouseDown(WPARAM btnState, int x, int y) {}
-    virtual void OnMouseUp(WPARAM btnState, int x, int y) {}
-    virtual void OnMouseMove(WPARAM btnState, int x, int y) {}
 
     bool InitMainWindow();
     void CalculateFrameStats();
@@ -50,6 +47,9 @@ protected:
 
     // Used to keep track of the �delta-time?and game time (?.4).
     GameTimer mTimer;
+
+    // The input scheduler class for current app windows
+    WindowsInput* mWinInput = nullptr;
 
     // Derived class should set these in derived constructor to customize starting values.
     std::wstring mMainWndCaption = L"Engine72 App";

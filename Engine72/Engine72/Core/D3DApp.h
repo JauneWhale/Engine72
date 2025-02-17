@@ -95,18 +95,3 @@ protected:
     DXGI_FORMAT mBackBufferFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
     DXGI_FORMAT mDepthStencilFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
 };
-
-
-class InitDirect3DApp : public D3DApp
-{
-public:
-    InitDirect3DApp(HINSTANCE hInstance);
-    ~InitDirect3DApp();
-
-    virtual bool Initialize() override;
-
-private:
-    virtual void OnResize() override;
-    virtual void Update(const GameTimer& gt) override;
-    virtual void Draw(const GameTimer& gt) override;
-};
