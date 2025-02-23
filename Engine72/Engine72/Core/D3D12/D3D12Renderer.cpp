@@ -1,48 +1,37 @@
-#include "D3DApp.h"
+#include "D3D12Renderer.h"
 
 using Microsoft::WRL::ComPtr;
 using namespace std;
 using namespace DirectX;
 
-D3DApp::~D3DApp()
+D3D12Renderer::~D3D12Renderer()
 {
 	if (md3dDevice != nullptr)
 		FlushCommandQueue();
 }
 
-float D3DApp::AspectRatio()const
+bool D3D12Renderer::InitializeRenderer(int clientWidth, int clientHeight, HWND targetWnd)
 {
-	return static_cast<float>(mClientWidth) / mClientHeight;
-}
+	mWindowsWidth = clientWidth;
+	mWindowsHeight = clientHeight;
 
-bool D3DApp::Initialize()
-{
-	if (!WinApp::Initialize())
-		return false;
-
-	if (!InitDirect3D())
+	if (!InitDirect3D(targetWnd))
 		return false;
 
 	// Do the initial resize code.
-	OnResize();
+	OnResize(clientWidth, clientHeight);
 
 	return true;
 }
 
-void D3DApp::Paint(const GameTimer& gt)
-{
-	Update(mTimer);
-	Draw(mTimer);
-}
-
-void D3DApp::MsgProcOnKeyUp(int key)
+void D3D12Renderer::MsgProcOnKeyUp(int key)
 {
 	if (key == VK_F2)
 		Set4xMsaaState(!m4xMsaaState);
 }
 
 #pragma region InitDirect3D
-bool D3DApp::InitDirect3D()
+bool D3D12Renderer::InitDirect3D(HWND targetWnd)
 {
 #if defined(DEBUG) || defined(_DEBUG) 
 	// Enable the D3D12 debug layer.
@@ -103,15 +92,13 @@ bool D3DApp::InitDirect3D()
 #endif
 
 	CreateCommandObjects();
-	CreateSwapChain();
+	CreateSwapChain(targetWnd);
 	CreateRtvAndDsvDescriptorHeaps();
-
-	mIsRendererApp = true;
 
 	return true;
 }
 
-void D3DApp::CreateCommandObjects()
+void D3D12Renderer::CreateCommandObjects()
 {
 	// TODO(zrz): Here only create a Direct command queue, what's the formal way to create it?
 
@@ -137,14 +124,15 @@ void D3DApp::CreateCommandObjects()
 	mCommandList->Close();
 }
 
-void D3DApp::CreateSwapChain()
+void D3D12Renderer::CreateSwapChain(HWND targetWnd)
 {
+	mLastTargetWnd = targetWnd;
 	// Release the previous swapchain we will be recreating.
 	mSwapChain.Reset();
 
 	DXGI_SWAP_CHAIN_DESC sd;
-	sd.BufferDesc.Width = mClientWidth;
-	sd.BufferDesc.Height = mClientHeight;
+	sd.BufferDesc.Width = mWindowsWidth;
+	sd.BufferDesc.Height = mWindowsHeight;
 	sd.BufferDesc.RefreshRate.Numerator = 60;
 	sd.BufferDesc.RefreshRate.Denominator = 1;
 	sd.BufferDesc.Format = mBackBufferFormat;
@@ -154,7 +142,7 @@ void D3DApp::CreateSwapChain()
 	sd.SampleDesc.Quality = m4xMsaaState ? (m4xMsaaQuality - 1) : 0;
 	sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 	sd.BufferCount = SwapChainBufferCount;
-	sd.OutputWindow = mhMainWnd;
+	sd.OutputWindow = targetWnd;
 	sd.Windowed = true;
 	sd.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 	sd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
@@ -166,7 +154,7 @@ void D3DApp::CreateSwapChain()
 		mSwapChain.GetAddressOf()));
 }
 
-void D3DApp::CreateRtvAndDsvDescriptorHeaps()
+void D3D12Renderer::CreateRtvAndDsvDescriptorHeaps()
 {
 	D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc;
 	rtvHeapDesc.NumDescriptors = SwapChainBufferCount;
@@ -187,8 +175,11 @@ void D3DApp::CreateRtvAndDsvDescriptorHeaps()
 }
 #pragma endregion
 
-void D3DApp::OnResize()
+void D3D12Renderer::OnResize(int newWidth, int newHeight)
 {
+	mWindowsWidth = newWidth;
+	mWindowsHeight = newHeight;
+
 	assert(md3dDevice);
 	assert(mSwapChain);
 	assert(mDirectCmdListAlloc);
@@ -207,7 +198,7 @@ void D3DApp::OnResize()
 	// Resize the swap chain.
 	ThrowIfFailed(mSwapChain->ResizeBuffers(
 		SwapChainBufferCount,
-		mClientWidth, mClientHeight,
+		newWidth, newHeight,
 		mBackBufferFormat,
 		DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH));
 
@@ -225,8 +216,8 @@ void D3DApp::OnResize()
 	D3D12_RESOURCE_DESC depthStencilDesc;
 	depthStencilDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
 	depthStencilDesc.Alignment = 0;
-	depthStencilDesc.Width = mClientWidth;
-	depthStencilDesc.Height = mClientHeight;
+	depthStencilDesc.Width = newWidth;
+	depthStencilDesc.Height = newHeight;
 	depthStencilDesc.DepthOrArraySize = 1;
 	depthStencilDesc.MipLevels = 1;
 	depthStencilDesc.Format = mDepthStencilFormat;
@@ -265,15 +256,15 @@ void D3DApp::OnResize()
 	// Update the viewport transform to cover the client area.
 	mScreenViewport.TopLeftX = 0;
 	mScreenViewport.TopLeftY = 0;
-	mScreenViewport.Width = static_cast<float>(mClientWidth);
-	mScreenViewport.Height = static_cast<float>(mClientHeight);
+	mScreenViewport.Width = static_cast<float>(newWidth);
+	mScreenViewport.Height = static_cast<float>(newHeight);
 	mScreenViewport.MinDepth = 0.0f;
 	mScreenViewport.MaxDepth = 1.0f;
 
-	mScissorRect = { 0, 0, mClientWidth, mClientHeight };
+	mScissorRect = { 0, 0, newWidth, newHeight };
 }
 
-void D3DApp::FlushCommandQueue()
+void D3D12Renderer::FlushCommandQueue()
 {
 	// Advance the fence value to mark commands up to this fence point.
 	mCurrentFence++;
@@ -297,13 +288,18 @@ void D3DApp::FlushCommandQueue()
 	}
 }
 
+void D3D12Renderer::Render(const GameTimer& gt, const CameraBase* camera)
+{
+
+}
+
 #pragma region Resources Related
-ID3D12Resource* D3DApp::CurrentBackBuffer()const
+ID3D12Resource* D3D12Renderer::CurrentBackBuffer()const
 {
 	return mSwapChainBuffer[mCurrBackBuffer].Get();
 }
 
-D3D12_CPU_DESCRIPTOR_HANDLE D3DApp::CurrentBackBufferView()const
+D3D12_CPU_DESCRIPTOR_HANDLE D3D12Renderer::CurrentBackBufferView()const
 {
 	return CD3DX12_CPU_DESCRIPTOR_HANDLE(
 		mRtvHeap->GetCPUDescriptorHandleForHeapStart(),
@@ -311,34 +307,34 @@ D3D12_CPU_DESCRIPTOR_HANDLE D3DApp::CurrentBackBufferView()const
 		mRtvDescriptorSize);
 }
 
-D3D12_CPU_DESCRIPTOR_HANDLE D3DApp::DepthStencilView()const
+D3D12_CPU_DESCRIPTOR_HANDLE D3D12Renderer::DepthStencilView()const
 {
 	return mDsvHeap->GetCPUDescriptorHandleForHeapStart();
 }
 #pragma endregion
 
 #pragma region Msaa Realted Functions
-bool D3DApp::Get4xMsaaState()const
+bool D3D12Renderer::Get4xMsaaState()const
 {
 	return m4xMsaaState;
 }
 
-void D3DApp::Set4xMsaaState(bool value)
+void D3D12Renderer::Set4xMsaaState(bool value)
 {
 	if (m4xMsaaState != value)
 	{
 		m4xMsaaState = value;
 
 		// Recreate the swapchain and buffers with new multisample settings.
-		CreateSwapChain();
-		OnResize();
+		CreateSwapChain(mLastTargetWnd);
+		OnResize(mWindowsWidth, mWindowsHeight);
 	}
 }
 #pragma endregion
 
 #pragma region Debug Logging For Adapters
 #ifdef _DEBUG
-void D3DApp::LogAdapters()
+void D3D12Renderer::LogAdapters()
 {
 	UINT i = 0;
 	IDXGIAdapter* adapter = nullptr;
@@ -366,7 +362,7 @@ void D3DApp::LogAdapters()
 	}
 }
 
-void D3DApp::LogAdapterOutputs(IDXGIAdapter* adapter)
+void D3D12Renderer::LogAdapterOutputs(IDXGIAdapter* adapter)
 {
 	UINT i = 0;
 	IDXGIOutput* output = nullptr;
@@ -388,7 +384,7 @@ void D3DApp::LogAdapterOutputs(IDXGIAdapter* adapter)
 	}
 }
 
-void D3DApp::LogOutputDisplayModes(IDXGIOutput* output, DXGI_FORMAT format)
+void D3D12Renderer::LogOutputDisplayModes(IDXGIOutput* output, DXGI_FORMAT format)
 {
 	UINT count = 0;
 	UINT flags = 0;

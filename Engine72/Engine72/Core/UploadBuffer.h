@@ -1,6 +1,6 @@
 #pragma once
 
-#include "D3DUtil.h"
+#include "D3D12/D3DUtil.h"
 
 template<typename T>
 class UploadBuffer

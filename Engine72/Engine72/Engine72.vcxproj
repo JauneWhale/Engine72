@@ -128,26 +128,41 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AppMain.cpp" />
-    <ClCompile Include="Core\D3DApp.cpp" />
-    <ClCompile Include="Core\D3DUtil.cpp" />
+    <ClCompile Include="Core\Camera\CameraBase.cpp" />
+    <ClCompile Include="Core\D3D12\D3D12Renderer.cpp" />
+    <ClCompile Include="Core\D3D12\D3DUtil.cpp" />
+    <ClCompile Include="Core\GameLoopApp.cpp" />
     <ClCompile Include="Core\DDSTextureLoader.cpp" />
+    <ClCompile Include="Core\FrameResource.cpp" />
+    <ClCompile Include="Core\GameRenderer.cpp" />
     <ClCompile Include="Core\GameTimer.cpp" />
     <ClCompile Include="Core\MathHelper.cpp" />
+    <ClCompile Include="Core\Mesh\Waves.cpp" />
     <ClCompile Include="Core\WinApp.cpp" />
+    <ClCompile Include="Core\WindowsInput.cpp" />
+    <ClCompile Include="Patterns\InputCommands.cpp" />
     <ClCompile Include="TestApp\BoxApp.cpp" />
-    <ClCompile Include="TestApp\InitDirect3DApp.cpp" />
+    <ClCompile Include="TestApp\InitDirect3DMinimalRenderer.cpp" />
+    <ClCompile Include="TestApp\LandAndWavesApp.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Core\Camera\CameraBase.h" />
     <ClInclude Include="Core\CommonUtil.h" />
     <ClInclude Include="Core\CRTDebugDefines.h" />
-    <ClInclude Include="Core\D3DApp.h" />
-    <ClInclude Include="Core\D3DUtil.h" />
-    <ClInclude Include="Core\d3dx12.h" />
+    <ClInclude Include="Core\D3D12\D3D12Renderer.h" />
+    <ClInclude Include="Core\D3D12\D3DUtil.h" />
+    <ClInclude Include="Core\D3D12\d3dx12.h" />
+    <ClInclude Include="Core\GameLoopApp.h" />
     <ClInclude Include="Core\DDSTextureLoader.h" />
+    <ClInclude Include="Core\FrameResource.h" />
+    <ClInclude Include="Core\GameRenderer.h" />
     <ClInclude Include="Core\GameTimer.h" />
     <ClInclude Include="Core\MathHelper.h" />
+    <ClInclude Include="Core\Mesh\Waves.h" />
     <ClInclude Include="Core\UploadBuffer.h" />
     <ClInclude Include="Core\WinApp.h" />
+    <ClInclude Include="Core\WindowsInput.h" />
+    <ClInclude Include="Patterns\InputCommands.h" />
     <ClInclude Include="TestApp\TestApp.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -11,34 +11,7 @@
 
 using namespace DirectX;
 
-InitDirect3DApp::InitDirect3DApp(HINSTANCE hInstance)
-	: D3DApp(hInstance)
-{
-}
-
-InitDirect3DApp::~InitDirect3DApp()
-{
-}
-
-bool InitDirect3DApp::Initialize()
-{
-	if (!D3DApp::Initialize())
-		return false;
-
-	return true;
-}
-
-void InitDirect3DApp::OnResize()
-{
-	D3DApp::OnResize();
-}
-
-void InitDirect3DApp::Update(const GameTimer& gt)
-{
-
-}
-
-void InitDirect3DApp::Draw(const GameTimer& gt)
+void InitDirect3DMinimalRenderer::Render(const GameTimer& gt, const CameraBase* camera)
 {
 	// Reuse the memory associated with command recording.
 	// We can only reset when the associated command lists have finished execution on the GPU.

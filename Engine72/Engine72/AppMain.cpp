@@ -1,5 +1,5 @@
 
-#include "Core/D3DApp.h"
+#include "Core/GameLoopApp.h"
 #include "TestApp/TestApp.h"
 
 //using ValidateApp = WinApp;

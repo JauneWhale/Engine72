@@ -10,19 +10,41 @@
 
 #include "TestApp.h"
 
+using namespace DirectX;
+
 BoxApp::BoxApp(HINSTANCE hInstance)
-    : D3DApp(hInstance)
+    : GameLoopApp(hInstance, new Box3DMinimalRenderer(), new RotatScaleCamera())
 {
+    mRotateData = new DragMouseRotateCommand();
+    WindowsInput* winInput = new MouseDraggingInput(mhMainWnd, mRotateData);
+    mRSCamera = dynamic_cast<RotatScaleCamera*>(mMainCamera);
+    // Refresh it first
+    mRSCamera->UpdatePerpsectiveFovLH(0.25f, mClientWidth, mClientHeight, 1.0f, 1000.0f);
+    SetWindowsInputModule(winInput);
 }
 
 BoxApp::~BoxApp()
 {
+    delete mWinInput;
+    delete mRotateData;
 }
 
-bool BoxApp::Initialize()
+void BoxApp::Update(const GameTimer& gt)
 {
-    if (!D3DApp::Initialize())
-        return false;
+    mRSCamera->UpdateCamera(mRotateData->mRadius, mRotateData->mPhi, mRotateData->mTheta);
+}
+
+void BoxApp::OnResize()
+{
+    GameLoopApp::OnResize();
+
+    // The window resized, update the aspect ratio and recompute the projection matrix.
+    mRSCamera->UpdatePerpsectiveFovLH(0.25f, mClientWidth, mClientHeight, 1.0f, 1000.0f);
+}
+
+bool Box3DMinimalRenderer::InitializeRenderer(int clientWidth, int clientHeight, HWND targetWnd)
+{
+    D3D12Renderer::InitializeRenderer(clientWidth, clientHeight, targetWnd);
 
     // Reset the command list to prep for initialization commands.
     ThrowIfFailed(mCommandList->Reset(mDirectCmdListAlloc.Get(), nullptr));
@@ -45,42 +67,13 @@ bool BoxApp::Initialize()
     return true;
 }
 
-void BoxApp::OnResize()
+void Box3DMinimalRenderer::Render(const GameTimer& gt, const CameraBase* camera)
 {
-    D3DApp::OnResize();
-
-    // The window resized, so update the aspect ratio and recompute the projection matrix.
-    XMMATRIX P = XMMatrixPerspectiveFovLH(0.25f * MathHelper::Pi, AspectRatio(), 1.0f, 1000.0f);
-    XMStoreFloat4x4(&mProj, P);
-}
-
-void BoxApp::Update(const GameTimer& gt)
-{
-    // Convert Spherical to Cartesian coordinates.
-    float x = mRadius * sinf(mPhi) * cosf(mTheta);
-    float z = mRadius * sinf(mPhi) * sinf(mTheta);
-    float y = mRadius * cosf(mPhi);
-
-    // Build the view matrix.
-    XMVECTOR pos = XMVectorSet(x, y, z, 1.0f);
-    XMVECTOR target = XMVectorZero();
-    XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-
-    XMMATRIX view = XMMatrixLookAtLH(pos, target, up);
-    XMStoreFloat4x4(&mView, view);
-
-    XMMATRIX world = XMLoadFloat4x4(&mWorld);
-    XMMATRIX proj = XMLoadFloat4x4(&mProj);
-    XMMATRIX worldViewProj = world * view * proj;
-
     // Update the constant buffer with the latest worldViewProj matrix.
     ObjectConstants objConstants;
-    XMStoreFloat4x4(&objConstants.WorldViewProj, XMMatrixTranspose(worldViewProj));
+    XMStoreFloat4x4(&objConstants.WorldViewProj, XMMatrixTranspose(camera->GetWorldViewProj()));
     mObjectCB->CopyData(0, objConstants);
-}
 
-void BoxApp::Draw(const GameTimer& gt)
-{
     // Reuse the memory associated with command recording.
     // We can only reset when the associated command lists have finished execution on the GPU.
     ThrowIfFailed(mDirectCmdListAlloc->Reset());
@@ -139,52 +132,7 @@ void BoxApp::Draw(const GameTimer& gt)
     FlushCommandQueue();
 }
 
-void BoxApp::OnMouseDown(WPARAM btnState, int x, int y)
-{
-    mLastMousePos.x = x;
-    mLastMousePos.y = y;
-
-    SetCapture(mhMainWnd);
-}
-
-void BoxApp::OnMouseUp(WPARAM btnState, int x, int y)
-{
-    ReleaseCapture();
-}
-
-void BoxApp::OnMouseMove(WPARAM btnState, int x, int y)
-{
-    if ((btnState & MK_LBUTTON) != 0)
-    {
-        // Make each pixel correspond to a quarter of a degree.
-        float dx = XMConvertToRadians(0.25f * static_cast<float>(x - mLastMousePos.x));
-        float dy = XMConvertToRadians(0.25f * static_cast<float>(y - mLastMousePos.y));
-
-        // Update angles based on input to orbit camera around box.
-        mTheta += dx;
-        mPhi += dy;
-
-        // Restrict the angle mPhi.
-        mPhi = MathHelper::Clamp(mPhi, 0.1f, MathHelper::Pi - 0.1f);
-    }
-    else if ((btnState & MK_RBUTTON) != 0)
-    {
-        // Make each pixel correspond to 0.005 unit in the scene.
-        float dx = 0.005f * static_cast<float>(x - mLastMousePos.x);
-        float dy = 0.005f * static_cast<float>(y - mLastMousePos.y);
-
-        // Update the camera radius based on input.
-        mRadius += dx - dy;
-
-        // Restrict the radius.
-        mRadius = MathHelper::Clamp(mRadius, 3.0f, 15.0f);
-    }
-
-    mLastMousePos.x = x;
-    mLastMousePos.y = y;
-}
-
-void BoxApp::BuildDescriptorHeaps()
+void Box3DMinimalRenderer::BuildDescriptorHeaps()
 {
     D3D12_DESCRIPTOR_HEAP_DESC cbvHeapDesc;
     cbvHeapDesc.NumDescriptors = 1;
@@ -195,7 +143,7 @@ void BoxApp::BuildDescriptorHeaps()
         IID_PPV_ARGS(&mCbvHeap)));
 }
 
-void BoxApp::BuildConstantBuffers()
+void Box3DMinimalRenderer::BuildConstantBuffers()
 {
     mObjectCB = std::make_unique<UploadBuffer<ObjectConstants>>(md3dDevice.Get(), 1, true);
 
@@ -215,7 +163,7 @@ void BoxApp::BuildConstantBuffers()
         mCbvHeap->GetCPUDescriptorHandleForHeapStart());
 }
 
-void BoxApp::BuildRootSignature()
+void Box3DMinimalRenderer::BuildRootSignature()
 {
     // Shader programs typically require resources as input (constant buffers,
     // textures, samplers).  The root signature defines the resources the shader
@@ -254,7 +202,7 @@ void BoxApp::BuildRootSignature()
         IID_PPV_ARGS(&mRootSignature)));
 }
 
-void BoxApp::BuildShadersAndInputLayout()
+void Box3DMinimalRenderer::BuildShadersAndInputLayout()
 {
     HRESULT hr = S_OK;
 
@@ -268,7 +216,7 @@ void BoxApp::BuildShadersAndInputLayout()
     };
 }
 
-void BoxApp::BuildBoxGeometry()
+void Box3DMinimalRenderer::BuildBoxGeometry()
 {
     std::array<Vertex, 8> vertices =
     {
@@ -340,7 +288,7 @@ void BoxApp::BuildBoxGeometry()
     mBoxGeo->DrawArgs["box"] = submesh;
 }
 
-void BoxApp::BuildPSO()
+void Box3DMinimalRenderer::BuildPSO()
 {
     D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc;
     ZeroMemory(&psoDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));

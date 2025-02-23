@@ -11,4 +11,10 @@
 #include <cstdint>
 #include <fstream>
 #include <sstream>
+#include <wrl.h>
 #include "CRTDebugDefines.h"
+
+inline float GetAspectRatio(int width, int height)
+{
+	return static_cast<float>(width) / height;
+}

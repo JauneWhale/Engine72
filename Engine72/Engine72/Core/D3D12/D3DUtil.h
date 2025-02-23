@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include "CommonUtil.h"
+#include "../CommonUtil.h"
 #include <dxgi1_4.h>
 #include <d3d12.h>
 #include <D3Dcompiler.h>
@@ -15,8 +15,8 @@
 #include <DirectXColors.h>
 #include <DirectXCollision.h>
 #include "d3dx12.h"
-#include "DDSTextureLoader.h"
-#include "MathHelper.h"
+#include "../DDSTextureLoader.h"
+#include "../MathHelper.h"
 
 extern const int gNumFrameResources;
 

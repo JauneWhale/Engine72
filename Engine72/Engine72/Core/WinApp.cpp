@@ -128,15 +128,18 @@ LRESULT WinApp::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	case WM_LBUTTONDOWN:
 	case WM_MBUTTONDOWN:
 	case WM_RBUTTONDOWN:
-		mWinInput->OnMouseDown(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+		// TODO(zrz): make a general wininput
+		if (mWinInput != nullptr) mWinInput->OnMouseDown(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 		return 0;
 	case WM_LBUTTONUP:
 	case WM_MBUTTONUP:
 	case WM_RBUTTONUP:
-		mWinInput->OnMouseUp(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+		// TODO(zrz): make a general wininput
+		if (mWinInput != nullptr) mWinInput->OnMouseUp(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 		return 0;
 	case WM_MOUSEMOVE:
-		mWinInput->OnMouseMove(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+		// TODO(zrz): make a general wininput
+		if (mWinInput != nullptr) mWinInput->OnMouseMove(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 		return 0;
 	case WM_KEYUP:
 		if (wParam == VK_ESCAPE)
@@ -167,7 +170,7 @@ HWND WinApp::MainWnd()const
 WinApp::WinApp(HINSTANCE hInstance)
 	: mhAppInst(hInstance)
 {
-	// Only one D3DApp can be constructed.
+	// Only one WinApp can be constructed.
 	assert(mApp == nullptr);
 	mApp = this;
 }

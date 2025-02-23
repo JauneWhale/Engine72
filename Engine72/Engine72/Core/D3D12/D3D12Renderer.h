@@ -1,6 +1,7 @@
 ﻿#pragma once
 
-#include "WinApp.h"
+#include "../GameRenderer.h"
+#include "../GameTimer.h"
 #include "D3DUtil.h"
 
 // TODO(zrz): move this to make files or settings
@@ -11,15 +12,13 @@
 
 using namespace Microsoft::WRL;
 
-class D3DApp : public WinApp
+class D3D12Renderer : public GameRenderer
 {
-protected:
-
-    D3DApp(HINSTANCE hInstance) : WinApp(hInstance) {};
-    virtual ~D3DApp();
+public:
+    D3D12Renderer() : GameRenderer() {};
+    virtual ~D3D12Renderer();
 
 public:
-    float   AspectRatio()const;
 
     bool    Get4xMsaaState()const;
     void    Set4xMsaaState(bool value);
@@ -27,19 +26,18 @@ public:
     //virtual LRESULT MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 protected:
-    virtual bool Initialize() override;
-    virtual void Paint(const GameTimer& gt) override;
+    virtual bool InitializeRenderer(int clientWidth, int clientHeight, HWND targetWnd) override;
+    virtual void OnResize(int newWidth, int newHeight) override;
+    virtual void Render(const GameTimer& gt, const CameraBase* camera) override;
     virtual void MsgProcOnKeyUp(int key) override;
 
     virtual void CreateRtvAndDsvDescriptorHeaps();
-    virtual void OnResize();
-    virtual void Update(const GameTimer& gt) = 0;
-    virtual void Draw(const GameTimer& gt) = 0;
 
 protected:
-    bool InitDirect3D();
+    HWND mLastTargetWnd; // TODO(zrz): get rid of it
+    bool InitDirect3D(HWND targetWnd);
     void CreateCommandObjects();
-    void CreateSwapChain();
+    void CreateSwapChain(HWND targetWnd);
 
     void FlushCommandQueue();
 
@@ -54,6 +52,8 @@ protected:
 #endif
 
 protected:
+    int       mWindowsWidth = 0;
+    int       mWindowsHeight = 0;
     // Set true to use 4X MSAA (?.1.8).  The default is false.
     bool      m4xMsaaState = false;    // 4X MSAA enabled
     UINT      m4xMsaaQuality = 0;      // quality level of 4X MSAA
