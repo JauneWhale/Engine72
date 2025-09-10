@@ -4,6 +4,15 @@
 #include "GameTimer.h"
 #include "Camera/CameraBase.h"
 
+typedef RECT RenderView;
+typedef struct RenderViewport
+{
+    float offsetX;
+    float offsetY;
+    float width;
+    float height;
+} 	RenderViewport;
+
 class GameRenderer
 {
 public:

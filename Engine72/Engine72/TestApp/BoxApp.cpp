@@ -12,6 +12,7 @@
 
 using namespace DirectX;
 
+#pragma region App Part
 BoxApp::BoxApp(HINSTANCE hInstance)
     : GameLoopApp(hInstance, new Box3DMinimalRenderer(), new RotatScaleCamera())
 {
@@ -41,7 +42,9 @@ void BoxApp::OnResize()
     // The window resized, update the aspect ratio and recompute the projection matrix.
     mRSCamera->UpdatePerpsectiveFovLH(0.25f, mClientWidth, mClientHeight, 1.0f, 1000.0f);
 }
+#pragma endregion
 
+#pragma region Renderer Part
 bool Box3DMinimalRenderer::InitializeRenderer(int clientWidth, int clientHeight, HWND targetWnd)
 {
     D3D12Renderer::InitializeRenderer(clientWidth, clientHeight, targetWnd);
@@ -316,3 +319,4 @@ void Box3DMinimalRenderer::BuildPSO()
     psoDesc.DSVFormat = mDepthStencilFormat;
     ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&mPSO)));
 }
+#pragma endregion
