@@ -15,6 +15,14 @@ MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	return WinApp::GetApp()->MsgProc(hwnd, msg, wParam, lParam);
 }
 
+/// <summary>
+/// 窗口消息接收
+/// </summary>
+/// <param name="hwnd"></param>
+/// <param name="msg"></param>
+/// <param name="wParam"></param>
+/// <param name="lParam"></param>
+/// <returns></returns>
 LRESULT WinApp::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (msg)
@@ -40,7 +48,7 @@ LRESULT WinApp::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		// Save the new client area dimensions.
 		mClientWidth = LOWORD(lParam);
 		mClientHeight = HIWORD(lParam);
-		if (mIsRendererApp)
+		if (IsRendererApp())
 		{
 			if (wParam == SIZE_MINIMIZED)
 			{
@@ -157,6 +165,63 @@ LRESULT WinApp::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	return DefWindowProc(hwnd, msg, wParam, lParam);
 }
 
+WinApp::WinApp(HINSTANCE hInstance)
+	: mhAppInst(hInstance)
+{
+	// Only one WinApp can be constructed.
+	assert(mApp == nullptr);
+	mApp = this;
+}
+
+/// <summary>
+/// 初始化入口，这里是所有App的基类实现，用于初始化窗口
+/// </summary>
+/// <returns></returns>
+bool WinApp::Initialize()
+{
+	return InitMainWindow();
+}
+
+/// <summary>
+/// 主循环入口
+/// </summary>
+/// <returns></returns>
+int WinApp::Run()
+{
+	MSG msg = { 0 };
+
+	mTimer.Reset();
+
+	while (msg.message != WM_QUIT)
+	{
+		// If there are Window messages then process them.
+		if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE))
+		{
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
+		// Otherwise, do animation/game stuff.
+		else
+		{
+			mTimer.Tick();
+
+			if (!mAppPaused)
+			{
+				CalculateFrameStats();
+				Update(mTimer);
+			}
+			else
+			{
+				Sleep(100);
+			}
+		}
+	}
+
+	return (int)msg.wParam;
+}
+
+#pragma region 工具函数
+
 HINSTANCE WinApp::AppInst()const
 {
 	return mhAppInst;
@@ -167,14 +232,10 @@ HWND WinApp::MainWnd()const
 	return mhMainWnd;
 }
 
-WinApp::WinApp(HINSTANCE hInstance)
-	: mhAppInst(hInstance)
-{
-	// Only one WinApp can be constructed.
-	assert(mApp == nullptr);
-	mApp = this;
-}
-
+/// <summary>
+/// 创建win窗口
+/// </summary>
+/// <returns></returns>
 bool WinApp::InitMainWindow()
 {
 	WNDCLASS wc;
@@ -215,45 +276,9 @@ bool WinApp::InitMainWindow()
 	return true;
 }
 
-bool WinApp::Initialize()
-{
-	return InitMainWindow();
-}
-
-int WinApp::Run()
-{
-	MSG msg = { 0 };
-
-	mTimer.Reset();
-
-	while (msg.message != WM_QUIT)
-	{
-		// If there are Window messages then process them.
-		if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE))
-		{
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
-		}
-		// Otherwise, do animation/game stuff.
-		else
-		{
-			mTimer.Tick();
-
-			if (!mAppPaused)
-			{
-				CalculateFrameStats();
-				Paint(mTimer);
-			}
-			else
-			{
-				Sleep(100);
-			}
-		}
-	}
-
-	return (int)msg.wParam;
-}
-
+/// <summary>
+/// 计算帧率
+/// </summary>
 void WinApp::CalculateFrameStats()
 {
 	// Code computes the average frames per second, and also the 
@@ -285,3 +310,4 @@ void WinApp::CalculateFrameStats()
 		timeElapsed += 1.0f;
 	}
 }
+#pragma endregion

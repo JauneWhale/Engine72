@@ -13,11 +13,14 @@ typedef struct RenderViewport
     float height;
 } 	RenderViewport;
 
+/// <summary>
+/// Renderer基类，提供各种接口定义
+/// </summary>
 class GameRenderer
 {
 public:
     GameRenderer() {};
-    virtual ~GameRenderer() {}
+    virtual ~GameRenderer() = default;
 
 public:
     virtual bool InitializeRenderer(int clientWidth, int clientHeight, HWND targetWnd) = 0;

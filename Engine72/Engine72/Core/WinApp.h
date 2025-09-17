@@ -6,29 +6,33 @@
 
 class WinApp
 {
+#pragma region 功能接口
 public:
+    virtual bool Initialize();
+    virtual bool IsRendererApp() { return false; }
+protected:
+    virtual void MsgProcOnKeyUp(int key) {};
+    virtual void Update(const GameTimer& gt) {};
+    virtual void OnResize() {};
+#pragma endregion
+    
+
+public:
+    static WinApp* GetApp();
 
     WinApp(HINSTANCE hInstance);
     WinApp(const WinApp& rhs) = delete;
     WinApp& operator=(const WinApp& rhs) = delete;
-    virtual ~WinApp() {};
-    virtual bool Initialize();
-
-public:
-    static WinApp* GetApp();
+    virtual ~WinApp() = default;
 
     void SetWindowsInputModule(WindowsInput* winInput) { mWinInput = winInput; }
     HINSTANCE AppInst()const;
     HWND      MainWnd()const;
     LRESULT MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
-    virtual void MsgProcOnKeyUp(int key) {};
 
     int Run();
 
 protected:
-    virtual void Paint(const GameTimer& gt) {};
-    virtual void OnResize() {};
-
     bool InitMainWindow();
     void CalculateFrameStats();
 
@@ -43,7 +47,6 @@ protected:
     bool      mResizing = false;   // are the resize bars being dragged?
     // TODO(zrz): FullScreen Enabled State is not implemented
     bool      mFullscreenState = false;// fullscreen enabled
-    bool      mIsRendererApp = false;// Tool App or Renderer App with backEnd? (DX11, DX12, Vulkan etc.)
 
     // Used to keep track of the �delta-time?and game time (?.4).
     GameTimer mTimer;

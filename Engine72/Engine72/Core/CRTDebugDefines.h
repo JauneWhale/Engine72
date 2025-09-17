@@ -5,6 +5,9 @@
 #include <crtdbg.h>
 #endif
 
+/// <summary>
+/// 内存泄漏检测，目前没有用
+/// </summary>
 inline void CreateCRTDbgContext()
 {
 	// Enable run-time memory check for debug builds.

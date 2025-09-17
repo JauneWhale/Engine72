@@ -2,19 +2,18 @@
 
 using namespace std;
 
-GameLoopApp::~GameLoopApp()
-{
-	assert(mGameRenderer);
-	delete mGameRenderer;
-}
-
+/// <summary>
+/// 初始化入口，这里作为LoopApp的实现，需要做到
+/// - 调用基类代码初始化窗口
+/// - 初始化Renderer
+/// </summary>
+/// <returns></returns>
 bool GameLoopApp::Initialize()
 {
 	if (!WinApp::Initialize())
 		return false;
 
 	assert(mGameRenderer);
-	mIsRendererApp = true;
 
 	if (!mGameRenderer->InitializeRenderer(mClientWidth, mClientHeight, mhMainWnd))
 		return false;
@@ -22,10 +21,10 @@ bool GameLoopApp::Initialize()
 	return true;
 }
 
-void GameLoopApp::Paint(const GameTimer& gt)
+void GameLoopApp::Update(const GameTimer& gt)
 {
 	// Game Logic Update
-	Update(mTimer);
+	GameLogicUpdate(mTimer);
 
 	// Renderer Update
 	mGameRenderer->Render(mTimer, mMainCamera);

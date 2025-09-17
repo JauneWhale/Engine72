@@ -1,5 +1,9 @@
 #pragma once
 
+//**************************************************************
+// 这个文件下面都是各种章节的测试App
+//**************************************************************
+
 #include "../Core/GameLoopApp.h"
 #include "../Core/D3D12/D3D12Renderer.h"
 #include "../Core/UploadBuffer.h"
@@ -7,90 +11,96 @@
 #include "../Core/Mesh/Waves.h"
 
 //**************************************************************
-// Chapter 4
+// Chapter 4: 初始化一个最小Renderer
 //**************************************************************
-class InitDirect3DMinimalRenderer : public D3D12Renderer
+namespace InitDirect3DApp
 {
-public:
-	InitDirect3DMinimalRenderer() : D3D12Renderer() {};
-    ~InitDirect3DMinimalRenderer() {}
+    class InitDirect3DMinimalRenderer : public D3D12Renderer
+    {
+    public:
+        InitDirect3DMinimalRenderer() = default;
+        ~InitDirect3DMinimalRenderer() = default;
 
-    virtual void Render(const GameTimer& gt, const CameraBase* camera) override;
-};
+        virtual void Render(const GameTimer& gt, const CameraBase* camera) override;
+    };
 
-class InitDirect3DApp : public GameLoopApp
-{
-public:
-	InitDirect3DApp(HINSTANCE hInstance)
-		: GameLoopApp(hInstance, new InitDirect3DMinimalRenderer()) {}
-	InitDirect3DApp(const InitDirect3DApp& rhs) = delete;
-	InitDirect3DApp& operator=(const InitDirect3DApp& rhs) = delete;
-    ~InitDirect3DApp() {}
-};
+    class InitDirect3DApp : public GameLoopApp
+    {
+    public:
+        InitDirect3DApp(HINSTANCE hInstance)
+            : GameLoopApp(hInstance, new InitDirect3DMinimalRenderer()) {}
+        InitDirect3DApp(const InitDirect3DApp& rhs) = delete;
+        InitDirect3DApp& operator=(const InitDirect3DApp& rhs) = delete;
+        ~InitDirect3DApp() = default;
+    };
+}
 
 //**************************************************************
-// Chapter 6
+// Chapter 6: 绘制一个Box，都是临时的数据结构
 //**************************************************************
 using namespace DirectX;
 using namespace DirectX::PackedVector;
 
-struct Vertex
+namespace BoxApp
 {
-    XMFLOAT3 Pos;
-    XMFLOAT4 Color;
-};
+    struct Vertex
+    {
+        XMFLOAT3 Pos;
+        XMFLOAT4 Color;
+    };
 
-struct ObjectConstants
-{
-    XMFLOAT4X4 WorldViewProj = MathHelper::Identity4x4();
-};
+    struct ObjectConstants
+    {
+        XMFLOAT4X4 WorldViewProj = MathHelper::Identity4x4();
+    };
 
-class BoxApp : public GameLoopApp
-{
-public:
-	BoxApp(HINSTANCE hInstance);
-	BoxApp(const BoxApp& rhs) = delete;
-	BoxApp& operator=(const BoxApp& rhs) = delete;
-	~BoxApp();
+    class BoxApp : public GameLoopApp
+    {
+    public:
+        BoxApp(HINSTANCE hInstance);
+        BoxApp(const BoxApp& rhs) = delete;
+        BoxApp& operator=(const BoxApp& rhs) = delete;
+        ~BoxApp();
 
-private:
-	virtual void Update(const GameTimer& gt)override;
-    virtual void OnResize() override;
+    private:
+        virtual void GameLogicUpdate(const GameTimer& gt)override;
+        virtual void OnResize() override;
 
-    DragMouseRotateCommand* mRotateData = nullptr;
-    RotatScaleCamera* mRSCamera;
-};
+        DragMouseRotateCommand* mRotateData = nullptr;
+        RotatScaleCamera* mRSCamera;
+    };
 
-class Box3DMinimalRenderer : public D3D12Renderer
-{
-public:
-    virtual void Render(const GameTimer& gt, const CameraBase* camera)override;
-    virtual bool InitializeRenderer(int clientWidth, int clientHeight, HWND targetWnd) override;
-private:
-    // Self Functions
-    void BuildDescriptorHeaps();
-    void BuildConstantBuffers();
-    void BuildRootSignature();
-    void BuildShadersAndInputLayout();
-    void BuildBoxGeometry();
-    void BuildPSO();
+    class Box3DMinimalRenderer : public D3D12Renderer
+    {
+    public:
+        virtual void Render(const GameTimer& gt, const CameraBase* camera)override;
+        virtual bool InitializeRenderer(int clientWidth, int clientHeight, HWND targetWnd) override;
+    private:
+        // Self Functions
+        void BuildDescriptorHeaps();
+        void BuildConstantBuffers();
+        void BuildRootSignature();
+        void BuildShadersAndInputLayout();
+        void BuildBoxGeometry();
+        void BuildPSO();
 
-private:
+    private:
 
-    ComPtr<ID3D12RootSignature> mRootSignature = nullptr;
-    ComPtr<ID3D12DescriptorHeap> mCbvHeap = nullptr;
+        ComPtr<ID3D12RootSignature> mRootSignature = nullptr;
+        ComPtr<ID3D12DescriptorHeap> mCbvHeap = nullptr;
 
-    std::unique_ptr<UploadBuffer<ObjectConstants>> mObjectCB = nullptr;
+        std::unique_ptr<UploadBuffer<ObjectConstants>> mObjectCB = nullptr;
 
-    std::unique_ptr<MeshGeometry> mBoxGeo = nullptr;
+        std::unique_ptr<MeshGeometry> mBoxGeo = nullptr;
 
-    ComPtr<ID3DBlob> mvsByteCode = nullptr;
-    ComPtr<ID3DBlob> mpsByteCode = nullptr;
+        ComPtr<ID3DBlob> mvsByteCode = nullptr;
+        ComPtr<ID3DBlob> mpsByteCode = nullptr;
 
-    std::vector<D3D12_INPUT_ELEMENT_DESC> mInputLayout;
+        std::vector<D3D12_INPUT_ELEMENT_DESC> mInputLayout;
 
-    ComPtr<ID3D12PipelineState> mPSO = nullptr;
-};
+        ComPtr<ID3D12PipelineState> mPSO = nullptr;
+    };
+}
 
 //
 //class LandAndWavesApp : public GameLoopApp

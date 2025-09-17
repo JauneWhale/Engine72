@@ -1,5 +1,8 @@
 #pragma once
 
+/// <summary>
+/// 计时器实现
+/// </summary>
 class GameTimer
 {
 public:

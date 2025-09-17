@@ -9,6 +9,7 @@
 #include <array>
 #include <unordered_map>
 #include <cstdint>
+#include <iostream>
 #include <fstream>
 #include <sstream>
 #include <wrl.h>

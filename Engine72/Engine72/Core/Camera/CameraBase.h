@@ -10,8 +10,8 @@ using namespace DirectX;
 class CameraBase
 {
 public:
-    CameraBase() {}
-    virtual ~CameraBase() {}
+    CameraBase() = default;
+    virtual ~CameraBase() = default;
 
     XMMATRIX GetWorldViewProj() const;
     void UpdatePerpsectiveFovLH(float fovAngle, int width, int height, float nearZ, float farZ);
@@ -32,8 +32,8 @@ protected:
 class RotatScaleCamera : public CameraBase
 {
 public:
-    RotatScaleCamera() {}
-    virtual ~RotatScaleCamera() {}
+    RotatScaleCamera() = default;
+    virtual ~RotatScaleCamera() = default;
 
     void UpdateCamera(float radius, float phi, float theta);
 };
