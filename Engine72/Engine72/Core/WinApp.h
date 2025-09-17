@@ -25,7 +25,7 @@ public:
     WinApp& operator=(const WinApp& rhs) = delete;
     virtual ~WinApp() = default;
 
-    void SetWindowsInputModule(WindowsInput* winInput) { mWinInput = winInput; }
+    void SetWindowsInputModule(WindowsInput* winInput) { mWinInput.reset(winInput); }
     HINSTANCE AppInst()const;
     HWND      MainWnd()const;
     LRESULT MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -52,7 +52,7 @@ protected:
     GameTimer mTimer;
 
     // The input scheduler class for current app windows
-    WindowsInput* mWinInput = nullptr;
+    std::unique_ptr<WindowsInput> mWinInput;
 
     // Derived class should set these in derived constructor to customize starting values.
     std::wstring mMainWndCaption = L"Engine72 App";

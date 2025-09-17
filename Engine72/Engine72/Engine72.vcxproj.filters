@@ -34,9 +34,6 @@
     <Filter Include="头文件\Core\Camera">
       <UniqueIdentifier>{c8d57e22-5452-4923-a42c-9ee0e80380b9}</UniqueIdentifier>
     </Filter>
-    <Filter Include="源文件\Core\Patterns">
-      <UniqueIdentifier>{217b1edf-7d11-4b2e-a50a-94573bba40bc}</UniqueIdentifier>
-    </Filter>
     <Filter Include="源文件\Core\TestApp">
       <UniqueIdentifier>{6003b09d-7821-4f2f-b64b-2b07e3b2ce83}</UniqueIdentifier>
     </Filter>
@@ -45,9 +42,6 @@
     </Filter>
     <Filter Include="头文件\Core\TestApp">
       <UniqueIdentifier>{a0423ebd-a12c-47f0-b1d6-bd4c45d23604}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="头文件\Core\Patterns">
-      <UniqueIdentifier>{138c5756-97c3-41c2-9ca4-292a2539df24}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -77,9 +71,6 @@
     </ClCompile>
     <ClCompile Include="Core\WindowsInput.cpp">
       <Filter>源文件\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="Patterns\InputCommands.cpp">
-      <Filter>源文件\Core\Patterns</Filter>
     </ClCompile>
     <ClCompile Include="TestApp\LandAndWavesApp.cpp">
       <Filter>源文件\Core\TestApp</Filter>
@@ -133,9 +124,6 @@
     </ClInclude>
     <ClInclude Include="Core\WindowsInput.h">
       <Filter>头文件\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="Patterns\InputCommands.h">
-      <Filter>头文件\Core\Patterns</Filter>
     </ClInclude>
     <ClInclude Include="Core\FrameResource.h">
       <Filter>头文件\Core</Filter>

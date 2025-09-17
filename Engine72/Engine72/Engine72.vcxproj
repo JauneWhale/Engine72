@@ -140,7 +140,6 @@
     <ClCompile Include="Core\Mesh\Waves.cpp" />
     <ClCompile Include="Core\WinApp.cpp" />
     <ClCompile Include="Core\WindowsInput.cpp" />
-    <ClCompile Include="Patterns\InputCommands.cpp" />
     <ClCompile Include="TestApp\BoxApp.cpp" />
     <ClCompile Include="TestApp\InitDirect3DMinimalRenderer.cpp" />
     <ClCompile Include="TestApp\LandAndWavesApp.cpp" />
@@ -162,7 +161,6 @@
     <ClInclude Include="Core\UploadBuffer.h" />
     <ClInclude Include="Core\WinApp.h" />
     <ClInclude Include="Core\WindowsInput.h" />
-    <ClInclude Include="Patterns\InputCommands.h" />
     <ClInclude Include="TestApp\TestApp.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

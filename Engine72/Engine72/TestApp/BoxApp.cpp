@@ -18,23 +18,16 @@ namespace BoxApp
     BoxApp::BoxApp(HINSTANCE hInstance)
         : GameLoopApp(hInstance, new Box3DMinimalRenderer(), new RotatScaleCamera())
     {
-        mRotateData = new DragMouseRotateCommand();
-        WindowsInput* winInput = new MouseDraggingInput(mhMainWnd, mRotateData);
         mRSCamera = dynamic_cast<RotatScaleCamera*>(mMainCamera);
         // Refresh it first
         mRSCamera->UpdatePerpsectiveFovLH(0.25f, mClientWidth, mClientHeight, 1.0f, 1000.0f);
-        SetWindowsInputModule(winInput);
+        inputData = new DragMouseRotateInput(mhMainWnd);
+        SetWindowsInputModule(inputData);
     }
 
-    BoxApp::~BoxApp()
+    void BoxApp::LogicUpdate(const GameTimer& gt)
     {
-        delete mWinInput;
-        delete mRotateData;
-    }
-
-    void BoxApp::GameLogicUpdate(const GameTimer& gt)
-    {
-        mRSCamera->UpdateCamera(mRotateData->mRadius, mRotateData->mPhi, mRotateData->mTheta);
+        mRSCamera->UpdateCamera(inputData->mRadius, inputData->mPhi, inputData->mTheta);
     }
 
     void BoxApp::OnResize()

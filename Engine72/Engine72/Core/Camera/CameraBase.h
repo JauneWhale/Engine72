@@ -9,6 +9,10 @@ using namespace DirectX;
 
 class CameraBase
 {
+    // virtual接口
+public:
+    virtual void UpdateCamera(float radius, float phi, float theta) = 0;
+
 public:
     CameraBase() = default;
     virtual ~CameraBase() = default;
@@ -31,9 +35,11 @@ protected:
 
 class RotatScaleCamera : public CameraBase
 {
+    // 实现接口
+public:
+    virtual void UpdateCamera(float radius, float phi, float theta);
+
 public:
     RotatScaleCamera() = default;
     virtual ~RotatScaleCamera() = default;
-
-    void UpdateCamera(float radius, float phi, float theta);
 };

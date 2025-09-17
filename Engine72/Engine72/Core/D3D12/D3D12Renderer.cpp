@@ -100,17 +100,20 @@ bool D3D12Renderer::InitDirect3D(HWND targetWnd)
 
 void D3D12Renderer::CreateCommandObjects()
 {
+	// Create Command Queue
 	// TODO(zrz): Here only create a Direct command queue, what's the formal way to create it?
-
 	D3D12_COMMAND_QUEUE_DESC queueDesc = {};
 	queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
 	queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
 	ThrowIfFailed(md3dDevice->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&mCommandQueue)));
 
+	// Create Command Allocator
 	ThrowIfFailed(md3dDevice->CreateCommandAllocator(
 		D3D12_COMMAND_LIST_TYPE_DIRECT,
 		IID_PPV_ARGS(mDirectCmdListAlloc.GetAddressOf())));
 
+
+	// Create Command LIst
 	ThrowIfFailed(md3dDevice->CreateCommandList(
 		0,
 		D3D12_COMMAND_LIST_TYPE_DIRECT,
@@ -286,11 +289,6 @@ void D3D12Renderer::FlushCommandQueue()
 		WaitForSingleObject(eventHandle, INFINITE);
 		CloseHandle(eventHandle);
 	}
-}
-
-void D3D12Renderer::Render(const GameTimer& gt, const CameraBase* camera)
-{
-
 }
 
 #pragma region Resources Related

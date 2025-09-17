@@ -28,7 +28,7 @@ public:
 protected:
     virtual bool InitializeRenderer(int clientWidth, int clientHeight, HWND targetWnd) override;
     virtual void OnResize(int newWidth, int newHeight) override;
-    virtual void Render(const GameTimer& gt, const CameraBase* camera) override;
+    virtual void Render(const GameTimer& gt, const CameraBase* camera) override {}
     virtual void MsgProcOnKeyUp(int key) override;
 
     virtual void CreateRtvAndDsvDescriptorHeaps();

@@ -24,7 +24,7 @@ bool GameLoopApp::Initialize()
 void GameLoopApp::Update(const GameTimer& gt)
 {
 	// Game Logic Update
-	GameLogicUpdate(mTimer);
+	LogicUpdate(mTimer);
 
 	// Renderer Update
 	mGameRenderer->Render(mTimer, mMainCamera);

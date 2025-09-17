@@ -15,7 +15,7 @@ protected:
     virtual void Update(const GameTimer& gt) override;
     virtual void MsgProcOnKeyUp(int key) override;
     virtual void OnResize() override;
-    virtual void GameLogicUpdate(const GameTimer& gt) {} // TOO(zrz): should I use "= 0"?
+    virtual void LogicUpdate(const GameTimer& gt) {} // TOO(zrz): should I use "= 0"?
 #pragma endregion
     
 public:

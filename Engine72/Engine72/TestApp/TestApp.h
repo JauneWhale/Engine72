@@ -60,13 +60,13 @@ namespace BoxApp
         BoxApp(HINSTANCE hInstance);
         BoxApp(const BoxApp& rhs) = delete;
         BoxApp& operator=(const BoxApp& rhs) = delete;
-        ~BoxApp();
+        ~BoxApp() = default;
 
     private:
-        virtual void GameLogicUpdate(const GameTimer& gt)override;
+        virtual void LogicUpdate(const GameTimer& gt) override;
         virtual void OnResize() override;
 
-        DragMouseRotateCommand* mRotateData = nullptr;
+        DragMouseRotateInput* inputData = nullptr;
         RotatScaleCamera* mRSCamera;
     };
 
