@@ -137,12 +137,14 @@
     <ClCompile Include="Core\GameRenderer.cpp" />
     <ClCompile Include="Core\GameTimer.cpp" />
     <ClCompile Include="Core\MathHelper.cpp" />
+    <ClCompile Include="Core\Mesh\GeometryGenerator.cpp" />
     <ClCompile Include="Core\Mesh\Waves.cpp" />
     <ClCompile Include="Core\WinApp.cpp" />
     <ClCompile Include="Core\WindowsInput.cpp" />
     <ClCompile Include="TestApp\BoxApp.cpp" />
     <ClCompile Include="TestApp\InitDirect3DMinimalRenderer.cpp" />
     <ClCompile Include="TestApp\LandAndWavesApp.cpp" />
+    <ClCompile Include="TestApp\ShapeApp.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Core\Camera\CameraBase.h" />
@@ -157,6 +159,7 @@
     <ClInclude Include="Core\GameRenderer.h" />
     <ClInclude Include="Core\GameTimer.h" />
     <ClInclude Include="Core\MathHelper.h" />
+    <ClInclude Include="Core\Mesh\GeometryGenerator.h" />
     <ClInclude Include="Core\Mesh\Waves.h" />
     <ClInclude Include="Core\UploadBuffer.h" />
     <ClInclude Include="Core\WinApp.h" />

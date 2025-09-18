@@ -28,5 +28,5 @@ protected:
     // Renderer
     std::unique_ptr<GameRenderer> mGameRenderer;
     // Logic
-    CameraBase* mMainCamera;
+    std::unique_ptr<CameraBase> mMainCamera;
 };

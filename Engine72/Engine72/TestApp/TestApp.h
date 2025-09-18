@@ -10,6 +10,37 @@
 #include "../Core/FrameResource.h"
 #include "../Core/Mesh/Waves.h"
 
+// Lightweight structure stores parameters to draw a shape.  This will
+// vary from app-to-app.
+struct RenderItem
+{
+    RenderItem() = default;
+
+    // World matrix of the shape that describes the object's local space
+    // relative to the world space, which defines the position, orientation,
+    // and scale of the object in the world.
+    XMFLOAT4X4 World = MathHelper::Identity4x4();
+
+    // Dirty flag indicating the object data has changed and we need to update the constant buffer.
+    // Because we have an object cbuffer for each FrameResource, we have to apply the
+    // update to each FrameResource.  Thus, when we modify obect data we should set 
+    // NumFramesDirty = gNumFrameResources so that each frame resource gets the update.
+    int NumFramesDirty = gNumFrameResources;
+
+    // Index into GPU constant buffer corresponding to the ObjectCB for this render item.
+    UINT ObjCBIndex = -1;
+
+    MeshGeometry* Geo = nullptr;
+
+    // Primitive topology.
+    D3D12_PRIMITIVE_TOPOLOGY PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+
+    // DrawIndexedInstanced parameters.
+    UINT IndexCount = 0;
+    UINT StartIndexLocation = 0;
+    int BaseVertexLocation = 0;
+};
+
 //**************************************************************
 // Chapter 4: 初始化一个最小Renderer
 //**************************************************************
@@ -43,12 +74,6 @@ using namespace DirectX::PackedVector;
 
 namespace BoxApp
 {
-    struct Vertex
-    {
-        XMFLOAT3 Pos;
-        XMFLOAT4 Color;
-    };
-
     struct ObjectConstants
     {
         XMFLOAT4X4 WorldViewProj = MathHelper::Identity4x4();
@@ -102,78 +127,172 @@ namespace BoxApp
     };
 }
 
-//
-//class LandAndWavesApp : public GameLoopApp
+//**************************************************************
+// Chapter 6: 绘制各种shape，都是临时的数据结构
+//**************************************************************
+namespace ShapeApp
+{
+    class ShapeApp : public GameLoopApp
+    {
+    public:
+        ShapeApp(HINSTANCE hInstance);
+        ShapeApp(const ShapeApp& rhs) = delete;
+        ShapeApp& operator=(const ShapeApp& rhs) = delete;
+        ~ShapeApp() = default;
+
+    private:
+        virtual void LogicUpdate(const GameTimer& gt) override;
+        virtual void OnResize() override;
+
+        DragMouseRotateInput* inputData = nullptr;
+        RotatScaleCamera* mRSCamera;
+    };
+
+    class ShapeAppRenderer : public D3D12Renderer
+    {
+    public:
+        virtual void Render(const GameTimer& gt, const CameraBase* camera)override;
+        virtual bool InitializeRenderer(int clientWidth, int clientHeight, HWND targetWnd) override;
+        void AdditionalUpdate(const GameTimer& gt, const CameraBase* camera, int clientWidth, int clientHeight);
+    private:
+        // Self Functions
+        void BuildDescriptorHeaps();
+        void BuildConstantBufferViews();
+        void BuildRootSignature();
+        void BuildShadersAndInputLayout();
+        void BuildShapeGeometry();
+        void BuildPSOs();
+        void BuildFrameResources();
+        void BuildRenderItems();
+        void DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems);
+
+        void OnKeyboardInput(const GameTimer& gt);
+        void UpdateObjectCBs(const GameTimer& gt);
+        void UpdateMainPassCB(const GameTimer& gt, const CameraBase* camera, int clientWidth, int clientHeight);
+
+    private:
+
+        ComPtr<ID3D12RootSignature> mRootSignature = nullptr;
+        ComPtr<ID3D12DescriptorHeap> mCbvHeap = nullptr;
+
+        std::unique_ptr<UploadBuffer<ObjectConstants>> mObjectCB = nullptr;
+
+        ComPtr<ID3DBlob> mvsByteCode = nullptr;
+        ComPtr<ID3DBlob> mpsByteCode = nullptr;
+        std::unordered_map<std::string, std::unique_ptr<MeshGeometry>> mGeometries;
+        std::unordered_map<std::string, ComPtr<ID3D12PipelineState>> mPSOs;
+        // List of all the render items.
+        std::vector<std::unique_ptr<RenderItem>> mAllRitems;
+        // Render items divided by PSO.
+        std::vector<RenderItem*> mOpaqueRitems;
+
+        std::vector<D3D12_INPUT_ELEMENT_DESC> mInputLayout;
+
+        ComPtr<ID3D12PipelineState> mPSO = nullptr;
+        std::vector<std::unique_ptr<FrameResource>> mFrameResources;
+        FrameResource* mCurrFrameResource = nullptr;
+        int mCurrFrameResourceIndex = 0;
+
+        bool mIsWireframe = false;
+
+        PassConstants mMainPassCB;
+
+        UINT mPassCbvOffset = 0;
+    };
+}
+
+
+//**************************************************************
+// Chapter 6: 绘制一个地形，都是临时的数据结构
+//**************************************************************
+//namespace LandAndWavesApp
 //{
-//public:
-//	LandAndWavesApp(HINSTANCE hInstance);
-//	LandAndWavesApp(const LandAndWavesApp& rhs) = delete;
-//	LandAndWavesApp& operator=(const LandAndWavesApp& rhs) = delete;
-//	~LandAndWavesApp();
 //
-//	virtual bool Initialize()override;
+//    enum class RenderLayer : int
+//    {
+//        Opaque = 0,
+//        Count
+//    };
 //
-//private:
-//	virtual void OnResize()override;
-//	virtual void Update(const GameTimer& gt)override;
-//	virtual void Render(const GameTimer& gt)override;
+//    class LandAndWavesApp : public GameLoopApp
+//    {
+//    public:
+//        LandAndWavesApp(HINSTANCE hInstance);
+//        LandAndWavesApp(const LandAndWavesApp& rhs) = delete;
+//        LandAndWavesApp& operator=(const LandAndWavesApp& rhs) = delete;
+//        ~LandAndWavesApp() = default;
 //
-//	void OnKeyboardInput(const GameTimer& gt);
-//	void UpdateCamera(const GameTimer& gt);
-//	void UpdateObjectCBs(const GameTimer& gt);
-//	void UpdateMainPassCB(const GameTimer& gt);
-//	void UpdateWaves(const GameTimer& gt);
+//    private:
+//        virtual void LogicUpdate(const GameTimer& gt) override;
+//        virtual void OnResize() override;
 //
-//	void BuildRootSignature();
-//	void BuildShadersAndInputLayout();
-//	void BuildLandGeometry();
-//	void BuildWavesGeometryBuffers();
-//	void BuildPSOs();
-//	void BuildFrameResources();
-//	void BuildRenderItems();
-//	void DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems);
+//    private:
 //
-//	float GetHillsHeight(float x, float z)const;
-//	XMFLOAT3 GetHillsNormal(float x, float z)const;
+//        void OnKeyboardInput(const GameTimer& gt);
+//        void UpdateCamera(const GameTimer& gt);
+//    };
 //
-//private:
+//    class LandAndWavesRenderer : public D3D12Renderer
+//    {
+//    public:
+//        virtual void Render(const GameTimer& gt, const CameraBase* camera)override;
+//        virtual bool InitializeRenderer(int clientWidth, int clientHeight, HWND targetWnd) override;
+//    private:
+//        void UpdateObjectCBs(const GameTimer& gt);
+//        void UpdateMainPassCB(const GameTimer& gt);
+//        void UpdateWaves(const GameTimer& gt);
 //
-//	std::vector<std::unique_ptr<FrameResource>> mFrameResources;
-//	FrameResource* mCurrFrameResource = nullptr;
-//	int mCurrFrameResourceIndex = 0;
+//        void BuildRootSignature();
+//        void BuildShadersAndInputLayout();
+//        void BuildLandGeometry();
+//        void BuildWavesGeometryBuffers();
+//        void BuildPSOs();
+//        void BuildFrameResources();
+//        void BuildRenderItems();
+//        void DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems);
 //
-//	UINT mCbvSrvDescriptorSize = 0;
+//        float GetHillsHeight(float x, float z)const;
+//        XMFLOAT3 GetHillsNormal(float x, float z)const;
 //
-//	ComPtr<ID3D12RootSignature> mRootSignature = nullptr;
+//    private:
 //
-//	std::unordered_map<std::string, std::unique_ptr<MeshGeometry>> mGeometries;
-//	std::unordered_map<std::string, ComPtr<ID3DBlob>> mShaders;
-//	std::unordered_map<std::string, ComPtr<ID3D12PipelineState>> mPSOs;
+//        std::vector<std::unique_ptr<FrameResource>> mFrameResources;
+//        FrameResource* mCurrFrameResource = nullptr;
+//        int mCurrFrameResourceIndex = 0;
 //
-//	std::vector<D3D12_INPUT_ELEMENT_DESC> mInputLayout;
+//        UINT mCbvSrvDescriptorSize = 0;
 //
-//	RenderItem* mWavesRitem = nullptr;
+//        ComPtr<ID3D12RootSignature> mRootSignature = nullptr;
 //
-//	// List of all the render items.
-//	std::vector<std::unique_ptr<RenderItem>> mAllRitems;
+//        std::unordered_map<std::string, std::unique_ptr<MeshGeometry>> mGeometries;
+//        std::unordered_map<std::string, ComPtr<ID3DBlob>> mShaders;
+//        std::unordered_map<std::string, ComPtr<ID3D12PipelineState>> mPSOs;
 //
-//	// Render items divided by PSO.
-//	std::vector<RenderItem*> mRitemLayer[(int)RenderLayer::Count];
+//        std::vector<D3D12_INPUT_ELEMENT_DESC> mInputLayout;
 //
-//	std::unique_ptr<Waves> mWaves;
+//        RenderItem* mWavesRitem = nullptr;
 //
-//	PassConstants mMainPassCB;
+//        // List of all the render items.
+//        std::vector<std::unique_ptr<RenderItem>> mAllRitems;
 //
-//	bool mIsWireframe = false;
+//        // Render items divided by PSO.
+//        std::vector<RenderItem*> mRitemLayer[(int)RenderLayer::Count];
 //
-//	XMFLOAT3 mEyePos = { 0.0f, 0.0f, 0.0f };
-//	XMFLOAT4X4 mView = MathHelper::Identity4x4();
-//	XMFLOAT4X4 mProj = MathHelper::Identity4x4();
+//        std::unique_ptr<Waves> mWaves;
 //
-//	float mSunTheta = 1.25f * XM_PI;
-//	float mSunPhi = XM_PIDIV4;
+//        PassConstants mMainPassCB;
 //
-//	POINT mLastMousePos;
+//        bool mIsWireframe = false;
 //
-//	DragMouseRotateCommand* mRotateData = nullptr;
-//};
+//        XMFLOAT3 mEyePos = { 0.0f, 0.0f, 0.0f };
+//        XMFLOAT4X4 mView = MathHelper::Identity4x4();
+//        XMFLOAT4X4 mProj = MathHelper::Identity4x4();
+//
+//        float mSunTheta = 1.25f * XM_PI;
+//        float mSunPhi = XM_PIDIV4;
+//
+//        POINT mLastMousePos;
+//
+//        DragMouseRotateCommand* mRotateData = nullptr;
+//    };
+//}

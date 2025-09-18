@@ -22,12 +22,12 @@ XMMATRIX CameraBase::GetWorldViewProj() const
 void RotatScaleCamera::UpdateCamera(float radius, float phi, float theta)
 {
     // Convert Spherical to Cartesian coordinates.
-    float x = radius * sinf(phi) * cosf(theta);
-    float z = radius * sinf(phi) * sinf(theta);
-    float y = radius * cosf(phi);
+    mEyePos.x = radius * sinf(phi) * cosf(theta);
+    mEyePos.z = radius * sinf(phi) * sinf(theta);
+    mEyePos.y = radius * cosf(phi);
 
     // Build the view matrix.
-    XMVECTOR pos = XMVectorSet(x, y, z, 1.0f);
+    XMVECTOR pos = XMVectorSet(mEyePos.x, mEyePos.y, mEyePos.z, 1.0f);
     XMVECTOR target = XMVectorZero();
     XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
     XMMATRIX view = XMMatrixLookAtLH(pos, target, up);

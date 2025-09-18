@@ -27,7 +27,7 @@ void GameLoopApp::Update(const GameTimer& gt)
 	LogicUpdate(mTimer);
 
 	// Renderer Update
-	mGameRenderer->Render(mTimer, mMainCamera);
+	mGameRenderer->Render(mTimer, mMainCamera.get());
 }
 
 void GameLoopApp::MsgProcOnKeyUp(int key)

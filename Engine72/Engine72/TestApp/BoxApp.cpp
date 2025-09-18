@@ -13,12 +13,11 @@
 using namespace DirectX;
 namespace BoxApp
 {
-
 #pragma region App Part
     BoxApp::BoxApp(HINSTANCE hInstance)
         : GameLoopApp(hInstance, new Box3DMinimalRenderer(), new RotatScaleCamera())
     {
-        mRSCamera = dynamic_cast<RotatScaleCamera*>(mMainCamera);
+        mRSCamera = dynamic_cast<RotatScaleCamera*>(mMainCamera.get());
         // Refresh it first
         mRSCamera->UpdatePerpsectiveFovLH(0.25f, mClientWidth, mClientHeight, 1.0f, 1000.0f);
         inputData = new DragMouseRotateInput(mhMainWnd);
@@ -42,15 +41,16 @@ namespace BoxApp
 #pragma region Renderer Part
     bool Box3DMinimalRenderer::InitializeRenderer(int clientWidth, int clientHeight, HWND targetWnd)
     {
-        D3D12Renderer::InitializeRenderer(clientWidth, clientHeight, targetWnd);
+        if (!D3D12Renderer::InitializeRenderer(clientWidth, clientHeight, targetWnd))
+            return false;
 
         // Reset the command list to prep for initialization commands.
         ThrowIfFailed(mCommandList->Reset(mDirectCmdListAlloc.Get(), nullptr));
 
         BuildDescriptorHeaps();
+        BuildShadersAndInputLayout();
         BuildConstantBuffers();
         BuildRootSignature();
-        BuildShadersAndInputLayout();
         BuildBoxGeometry();
         BuildPSO();
 

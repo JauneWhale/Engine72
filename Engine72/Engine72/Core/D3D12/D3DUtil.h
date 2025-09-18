@@ -20,23 +20,24 @@
 
 extern const int gNumFrameResources;
 
+#pragma region d3d Debug
 inline void d3dSetDebugName(IDXGIObject* obj, const char* name)
 {
-    if(obj)
+    if (obj)
     {
         obj->SetPrivateData(WKPDID_D3DDebugObjectName, lstrlenA(name), name);
     }
 }
 inline void d3dSetDebugName(ID3D12Device* obj, const char* name)
 {
-    if(obj)
+    if (obj)
     {
         obj->SetPrivateData(WKPDID_D3DDebugObjectName, lstrlenA(name), name);
     }
 }
 inline void d3dSetDebugName(ID3D12DeviceChild* obj, const char* name)
 {
-    if(obj)
+    if (obj)
     {
         obj->SetPrivateData(WKPDID_D3DDebugObjectName, lstrlenA(name), name);
     }
@@ -76,6 +77,7 @@ inline std::wstring AnsiToWString(const std::string& str)
     #endif
 #endif 		
     */
+#pragma endregion
 
 class D3DUtil
 {
@@ -87,9 +89,8 @@ public:
 
     static UINT CalcConstantBufferByteSize(UINT byteSize)
     {
-        // Constant buffers must be a multiple of the minimum hardware
-        // allocation size (usually 256 bytes).  So round up to nearest
-        // multiple of 256.  We do this by adding 255 and then masking off
+        // Constant buffers must be a multiple of the minimum hardware allocation size (usually 256 bytes). 
+        // So round up to nearest multiple of 256.  We do this by adding 255 and then masking off
         // the lower 2 bytes which store all bits < 256.
         // Example: Suppose byteSize = 300.
         // (300 + 255) & ~255

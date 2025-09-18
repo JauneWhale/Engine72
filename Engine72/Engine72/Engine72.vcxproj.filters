@@ -93,6 +93,12 @@
     <ClCompile Include="Core\Camera\CameraBase.cpp">
       <Filter>源文件\Core\Camera</Filter>
     </ClCompile>
+    <ClCompile Include="TestApp\ShapeApp.cpp">
+      <Filter>源文件\Core\TestApp</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Mesh\GeometryGenerator.cpp">
+      <Filter>源文件\Core\Mesh</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Core\GameLoopApp.h">
@@ -145,6 +151,9 @@
     </ClInclude>
     <ClInclude Include="Core\Camera\CameraBase.h">
       <Filter>头文件\Core\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Mesh\GeometryGenerator.h">
+      <Filter>头文件\Core\Mesh</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
